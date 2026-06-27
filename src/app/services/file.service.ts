@@ -41,26 +41,35 @@ export class FileService {
             }
         `;
 
+        console.log('GraphQL Query - Path:', path); // Debug log
+
         return this.apollo
             .watchQuery<DirectoryListingResponse>({
                 query,
-                variables: { path },
+                variables: { path: path || '' },
                 fetchPolicy: 'network-only',
             })
             .valueChanges.pipe(
                 map((result) => {
+                    console.log('GraphQL Result:', result); // Debug log
+                    
                     // Handle errors from Apollo
                     if (result.error) {
+                        console.error('Apollo error:', result.error);
                         throw new Error(result.error.message);
                     }
+                    
                     // Check if data exists
                     if (!result.data || !result.data.directoryListing) {
+                        console.error('No data received');
                         throw new Error('No data received from server');
                     }
+                    
+                    console.log(`Received ${result.data.directoryListing.length} entries`);
                     return result.data.directoryListing;
                 }),
                 catchError((error) => {
-                    console.error('Error fetching directory listing:', error);
+                    console.error('Error in getDirectoryListing:', error);
                     return throwError(() => new Error(error.message || 'Failed to load directory contents'));
                 })
             );

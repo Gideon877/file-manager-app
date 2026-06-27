@@ -1,4 +1,4 @@
-import { Component, signal, inject, OnInit, computed } from '@angular/core';
+import { Component, signal, inject, OnInit, computed, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FileService } from '../services/file.service';
 import { FileSystemEntry } from '../models/file-system-entry.model';
@@ -18,20 +18,20 @@ export class HomeComponent implements OnInit {
     protected currentPath = signal<string>('');
     protected files = signal<FileSystemEntry[]>([]);
     protected filteredFiles = signal<FileSystemEntry[]>([]);
-    protected loading = signal(false);
+    protected loading = signal<boolean>(true);
     protected error = signal<string | null>(null);
     protected searchTerm = signal('');
     protected viewMode = signal<'grid' | 'list'>('list');
 
     // Computed stats
     protected fileCount = computed(() => 
-      this.files().filter(f => !f.isDirectory).length
+        this.files().filter(f => !f.isDirectory).length
     );
     protected folderCount = computed(() => 
-      this.files().filter(f => f.isDirectory).length
+        this.files().filter(f => f.isDirectory).length
     );
     protected totalSize = computed(() => 
-      this.files().reduce((sum, f) => sum + (f.isDirectory ? 0 : f.size), 0)
+        this.files().reduce((sum, f) => sum + (f.isDirectory ? 0 : f.size), 0)
     );
 
     // Breadcrumbs
@@ -40,7 +40,7 @@ export class HomeComponent implements OnInit {
     ]);
 
     ngOnInit() {
-        // Start with root directory
+        // Start from root with empty path (API will use BASE_DIRECTORY)
         this.currentPath.set('');
         this.loadDirectory('');
     }
@@ -49,40 +49,38 @@ export class HomeComponent implements OnInit {
      * Load directory listing
      */
     loadDirectory(path: string) {
+        // Set loading to true immediately
         this.loading.set(true);
         this.error.set(null);
+
+        console.log('Loading directory:', path || '/');
 
         this.fileService
             .getDirectoryListing(path)
             .pipe(
-                finalize(() => this.loading.set(false)),
                 catchError((err) => {
-                    this.error.set(err.message);
+                    console.error('Error in loadDirectory:', err);
+                    this.error.set(err.message || 'Failed to load directory');
+                    this.loading.set(false); // Set loading false on error
                     return of([]);
                 })
             )
             .subscribe({
                 next: (entries) => {
-                    // Sort: directories first, then by name
-                    const sorted = this.sortEntries(entries);
-                    this.files.set(sorted);
+                    console.log('Received entries:', entries.length);
+                    if (entries.length === 0) {
+                        this.error.set('Directory is empty or inaccessible');
+                    }
+                    this.files.set(entries);
                     this.filterFiles();
+                    this.loading.set(false); // Set loading false when data is received
                 },
                 error: (err) => {
-                    this.error.set(err.message);
+                    console.error('Subscription error:', err);
+                    this.error.set(err.message || 'An unexpected error occurred');
+                    this.loading.set(false); // Set loading false on error
                 }
             });
-    }
-
-    /**
-     * Sort entries (directories first, then alphabetically)
-     */
-    private sortEntries(entries: FileSystemEntry[]): FileSystemEntry[] {
-        return [...entries].sort((a, b) => {
-            if (a.isDirectory && !b.isDirectory) return -1;
-            if (!a.isDirectory && b.isDirectory) return 1;
-            return a.name.localeCompare(b.name);
-        });
     }
 
     /**
@@ -127,14 +125,14 @@ export class HomeComponent implements OnInit {
         const currentPath = this.currentPath();
         if (currentPath) {
             const parentPath = currentPath.split('/').slice(0, -1).join('/');
-            this.currentPath.set(parentPath);
+            this.currentPath.set(parentPath || '');
             
             this.breadcrumbs.update(crumbs => {
                 crumbs.splice(-1);
                 return [...crumbs];
             });
             
-            this.loadDirectory(parentPath);
+            this.loadDirectory(parentPath || '');
         }
     }
 
