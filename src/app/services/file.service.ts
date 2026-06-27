@@ -10,9 +10,6 @@ import { FileSystemEntry, DirectoryListingResponse } from '../models/file-system
 export class FileService {
     constructor(private apollo: Apollo) { }
 
-    /**
-     * Get directory listing using GraphQL query
-     */
     getDirectoryListing(path?: string): Observable<FileSystemEntry[]> {
         const query = gql`
             query GetDirectoryListing($path: String) {
@@ -41,31 +38,22 @@ export class FileService {
             }
         `;
 
-        console.log('GraphQL Query - Path:', path); // Debug log
+        const variables = path ? { path } : {};
 
         return this.apollo
             .watchQuery<DirectoryListingResponse>({
                 query,
-                variables: { path: path || '' },
+                variables,
                 fetchPolicy: 'network-only',
             })
             .valueChanges.pipe(
                 map((result) => {
-                    console.log('GraphQL Result:', result); // Debug log
-                    
-                    // Handle errors from Apollo
                     if (result.error) {
-                        console.error('Apollo error:', result.error);
                         throw new Error(result.error.message);
                     }
-                    
-                    // Check if data exists
                     if (!result.data || !result.data.directoryListing) {
-                        console.error('No data received');
                         throw new Error('No data received from server');
                     }
-                    
-                    console.log(`Received ${result.data.directoryListing.length} entries`);
                     return result.data.directoryListing;
                 }),
                 catchError((error) => {
@@ -75,9 +63,6 @@ export class FileService {
             );
     }
 
-    /**
-     * Format file size for display
-     */
     formatFileSize(bytes: number): string {
         if (bytes === 0) return '0 B';
         const units = ['B', 'KB', 'MB', 'GB', 'TB'];

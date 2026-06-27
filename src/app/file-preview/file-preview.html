@@ -1,0 +1,128 @@
+<!-- Modal Overlay -->
+@if (isOpen()) {
+    <div class="modal-overlay" (click)="close()">
+        <div class="modal-container" (click)="$event.stopPropagation()">
+            <!-- Modal Header -->
+            <div class="modal-header">
+                <div class="modal-title">
+                    <span class="modal-icon">{{ getFileIcon(file()!) }}</span>
+                    <span>{{ file()?.name || 'File Info' }}</span>
+                </div>
+                <button class="modal-close" (click)="close()">✕</button>
+            </div>
+
+            <!-- Modal Body -->
+            <div class="modal-body">
+                @if (file(); as file) {
+                    <!-- Preview Content -->
+                    <div class="preview-container">
+                        @if (file.isDirectory) {
+                            <div class="preview-directory">
+                                <div class="preview-icon-large">📁</div>
+                                <h3>{{ file.name }}</h3>
+                                <p>Directory with {{ file.childCount || 0 }} items</p>
+                            </div>
+                        } @else if (isImage()) {
+                            <div class="preview-image">
+                                <img 
+                                    [src]="'http://localhost:3000/file/' + file.path" 
+                                    [alt]="file.name"
+                                    loading="lazy"
+                                    (error)="console.log('Image load error')"
+                                />
+                            </div>
+                        } @else if (isPDF()) {
+                            <div class="preview-pdf">
+                                <iframe 
+                                    [src]="'http://localhost:3000/file/' + file.path"
+                                    width="100%"
+                                    height="500px"
+                                    frameborder="0"
+                                ></iframe>
+                            </div>
+                        } @else if (isAudio()) {
+                            <div class="preview-audio">
+                                <div class="audio-icon-large">🎵</div>
+                                <audio controls style="width: 100%;">
+                                    <source [src]="'http://localhost:3000/file/' + file.path" [type]="getMimeType(file)">
+                                    Your browser does not support the audio element.
+                                </audio>
+                            </div>
+                        } @else if (isVideo()) {
+                            <div class="preview-video">
+                                <video controls style="width: 100%; max-height: 400px;">
+                                    <source [src]="'http://localhost:3000/file/' + file.path" [type]="getMimeType(file)">
+                                    Your browser does not support the video element.
+                                </video>
+                            </div>
+                        } @else if (isText() || isCode()) {
+                            <div class="preview-text">
+                                <iframe 
+                                    [src]="'http://localhost:3000/file/' + file.path"
+                                    width="100%"
+                                    height="400px"
+                                    frameborder="0"
+                                    style="background: #1e1e1e; color: #d4d4d4;"
+                                ></iframe>
+                            </div>
+                        } @else {
+                            <div class="preview-unknown">
+                                <div class="preview-icon-large">📄</div>
+                                <p>No preview available for this file type</p>
+                            </div>
+                        }
+                    </div>
+
+                    <!-- File Info Section -->
+                    <div class="file-info">
+                        <h4>File Information</h4>
+                        <div class="info-grid">
+                            <div class="info-item">
+                                <span class="info-label">Name</span>
+                                <span class="info-value">{{ file.name }}</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Type</span>
+                                <span class="info-value">{{ getFileTypeLabel(file) }}</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Size</span>
+                                <span class="info-value">{{ fileSizeFormatted() }}</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Extension</span>
+                                <span class="info-value">{{ file.extension || 'None' }}</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">MIME Type</span>
+                                <span class="info-value">{{ file.mimeType || 'Unknown' }}</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Permissions</span>
+                                <span class="info-value permission-value">{{ getPermissionsLabel(file) }}</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Created</span>
+                                <span class="info-value">{{ fileCreatedFormatted() }}</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Modified</span>
+                                <span class="info-value">{{ fileDateFormatted() }}</span>
+                            </div>
+                            @if (file.accessedAt) {
+                                <div class="info-item">
+                                    <span class="info-label">Last Accessed</span>
+                                    <span class="info-value">{{ file.accessedAt | date:'long' }}</span>
+                                </div>
+                            }
+                            <div class="info-item">
+                                <span class="info-label">Path</span>
+                                <span class="info-value path-value">{{ file.path }}</span>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+}

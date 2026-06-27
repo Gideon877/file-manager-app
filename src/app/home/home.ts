@@ -1,18 +1,22 @@
-import { Component, signal, inject, OnInit, computed, effect } from '@angular/core';
+import { Component, signal, inject, OnInit, computed, viewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FileService } from '../services/file.service';
 import { FileSystemEntry } from '../models/file-system-entry.model';
-import { finalize, catchError, of } from 'rxjs';
+import { FilePreviewComponent } from '../file-preview/file-preview';
+import { catchError, of } from 'rxjs';
 
 @Component({
     selector: 'app-home',
     standalone: true,
-    imports: [CommonModule],
+    imports: [CommonModule, FilePreviewComponent],
     templateUrl: './home.html',
     styleUrl: './home.css'
 })
 export class HomeComponent implements OnInit {
     private fileService = inject(FileService);
+
+    // View child reference to the preview modal
+    protected previewModal = viewChild(FilePreviewComponent);
 
     // Signals for reactive state
     protected currentPath = signal<string>('');
@@ -40,7 +44,6 @@ export class HomeComponent implements OnInit {
     ]);
 
     ngOnInit() {
-        // Start from root with empty path (API will use BASE_DIRECTORY)
         this.currentPath.set('');
         this.loadDirectory('');
     }
@@ -49,11 +52,8 @@ export class HomeComponent implements OnInit {
      * Load directory listing
      */
     loadDirectory(path: string) {
-        // Set loading to true immediately
         this.loading.set(true);
         this.error.set(null);
-
-        console.log('Loading directory:', path || '/');
 
         this.fileService
             .getDirectoryListing(path)
@@ -61,26 +61,32 @@ export class HomeComponent implements OnInit {
                 catchError((err) => {
                     console.error('Error in loadDirectory:', err);
                     this.error.set(err.message || 'Failed to load directory');
-                    this.loading.set(false); // Set loading false on error
+                    this.loading.set(false);
                     return of([]);
                 })
             )
             .subscribe({
                 next: (entries) => {
-                    console.log('Received entries:', entries.length);
-                    if (entries.length === 0) {
-                        this.error.set('Directory is empty or inaccessible');
-                    }
                     this.files.set(entries);
                     this.filterFiles();
-                    this.loading.set(false); // Set loading false when data is received
+                    this.loading.set(false);
                 },
                 error: (err) => {
-                    console.error('Subscription error:', err);
                     this.error.set(err.message || 'An unexpected error occurred');
-                    this.loading.set(false); // Set loading false on error
+                    this.loading.set(false);
                 }
             });
+    }
+
+    /**
+     * Open file preview modal or navigate to directory
+     */
+    openPreview(file: FileSystemEntry) {
+        if (!file.isDirectory) {
+            this.previewModal()?.open(file);
+        } else {
+            this.navigateToDirectory(file);
+        }
     }
 
     /**
@@ -90,7 +96,6 @@ export class HomeComponent implements OnInit {
         if (entry.isDirectory) {
             this.currentPath.set(entry.path);
             
-            // Update breadcrumbs
             this.breadcrumbs.update(crumbs => {
                 const newCrumbs = [...crumbs];
                 const existingIndex = newCrumbs.findIndex(c => c.path === entry.path);
@@ -179,6 +184,7 @@ export class HomeComponent implements OnInit {
             'png': '🖼️',
             'gif': '🖼️',
             'svg': '🖼️',
+            'webp': '🖼️',
             'pdf': '📕',
             'doc': '📄',
             'docx': '📄',
@@ -187,7 +193,14 @@ export class HomeComponent implements OnInit {
             'zip': '📦',
             'tar': '📦',
             'gz': '📦',
-            'lock': '🔒'
+            'lock': '🔒',
+            'mp3': '🎵',
+            'wav': '🎵',
+            'ogg': '🎵',
+            'mp4': '🎬',
+            'webm': '🎬',
+            'avi': '🎬',
+            'mov': '🎬'
         };
         
         const ext = entry.extension || '';
@@ -211,8 +224,18 @@ export class HomeComponent implements OnInit {
             'jpg': '#FF6B6B',
             'jpeg': '#FF6B6B',
             'png': '#FF6B6B',
+            'gif': '#FF6B6B',
+            'svg': '#FF6B6B',
+            'webp': '#FF6B6B',
             'pdf': '#E53E3E',
-            'lock': '#2D3748'
+            'lock': '#2D3748',
+            'mp3': '#48BB78',
+            'wav': '#48BB78',
+            'ogg': '#48BB78',
+            'mp4': '#9F7AEA',
+            'webm': '#9F7AEA',
+            'avi': '#9F7AEA',
+            'mov': '#9F7AEA'
         };
         
         const ext = entry.extension || '';
