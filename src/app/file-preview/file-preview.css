@@ -272,3 +272,28 @@
         padding: 1rem;
     }
 }
+
+/* ===== PREVIEW ERROR ===== */
+.preview-error {
+    padding: 3rem;
+    text-align: center;
+    color: #ef4444;
+}
+
+.preview-error .preview-icon-large {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+}
+
+.preview-error p {
+    margin: 0.5rem 0;
+}
+
+.preview-error-path {
+    font-size: 0.8rem;
+    color: #94a3b8;
+    font-family: 'SF Mono', 'Courier New', monospace;
+    word-break: break-all;
+    max-width: 400px;
+    margin: 0 auto;
+}

@@ -12,6 +12,7 @@ import { FileSystemEntry } from '../models/file-system-entry.model';
 export class FilePreviewComponent {
     protected file = signal<FileSystemEntry | null>(null);
     protected isOpen = signal(false);
+    protected imageError = signal(false);
 
     // Computed properties for file type detection
     protected isImage = computed(() => {
@@ -83,6 +84,7 @@ export class FilePreviewComponent {
     open(file: FileSystemEntry) {
         this.file.set(file);
         this.isOpen.set(true);
+        this.imageError.set(false);
         document.body.style.overflow = 'hidden';
     }
 
@@ -91,7 +93,16 @@ export class FilePreviewComponent {
         document.body.style.overflow = '';
         setTimeout(() => {
             this.file.set(null);
+            this.imageError.set(false);
         }, 300);
+    }
+
+    /**
+     * Handle image load error
+     */
+    onImageError() {
+        this.imageError.set(true);
+        console.error('Failed to load image:', this.file()?.path);
     }
 
     private formatFileSize(bytes: number): string {
