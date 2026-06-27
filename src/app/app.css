@@ -1,0 +1,11 @@
+/* Remove all the existing styles or keep it minimal */
+:host {
+  display: block;
+  height: 100vh;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}

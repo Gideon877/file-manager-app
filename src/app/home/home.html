@@ -1,0 +1,79 @@
+<div class="home-container">
+    <!-- Header Section -->
+    <header class="app-header">
+        <div class="header-content">
+            <div class="logo-section">
+                <h1>📁 File Explorer</h1>
+            </div>
+           
+        </div>
+    </header>
+
+    <!-- Navigation/Breadcrumb Section -->
+    <nav class="breadcrumb-nav">
+        <div class="breadcrumb-content">
+            <span class="breadcrumb-label">Location:</span>
+            <div class="breadcrumb-items">
+                @for (crumb of breadcrumbs(); track crumb.path) {
+                <span class="breadcrumb-item">
+                    <a href="#">{{ crumb.name }}</a>
+                    @if (!$last) {
+                    <span class="separator">›</span>
+                    }
+                </span>
+                }
+            </div>
+            <span class="path-display">{{ currentPath() }}</span>
+        </div>
+    </nav>
+
+    <!-- Stats Bar -->
+    <div class="stats-bar">
+        <div class="stat-item">
+            <span class="stat-icon">📄</span>
+            <span class="stat-value">{{ fileCount() }}</span>
+            <span class="stat-label">Files</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-icon">📁</span>
+            <span class="stat-value">{{ folderCount() }}</span>
+            <span class="stat-label">Folders</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-icon">💾</span>
+            <span class="stat-value">0 MB</span>
+            <span class="stat-label">Used Space</span>
+        </div>
+    </div>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+        <!-- Empty State -->
+        <div class="empty-state">
+            <div class="empty-state-content">
+                <div class="empty-icon">📂</div>
+                <h2>No files or folders yet</h2>
+                <p>This folder is empty. Start by creating a new folder or uploading files.</p>
+              
+            </div>
+        </div>
+
+        <!-- File Grid (Hidden for now) -->
+        <!-- <div class="file-grid">
+      @for (item of files(); track item.name) {
+        <div class="file-item">
+          <div class="file-icon">{{ item.icon }}</div>
+          <div class="file-name">{{ item.name }}</div>
+        </div>
+      }
+    </div> -->
+    </main>
+
+    <!-- Footer -->
+    <footer class="app-footer">
+        <div class="footer-content">
+            <span>© 2026 File Explorer App</span>
+            <span>Built with Angular 18</span>
+        </div>
+    </footer>
+</div>
