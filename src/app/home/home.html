@@ -1,162 +1,257 @@
 <div class="home-container">
-    <!-- Material Toolbar -->
+    <!-- Premium Header -->
     <mat-toolbar color="primary" class="app-toolbar">
-        <span class="logo">📁 File Explorer</span>
-        <span class="spacer"></span>
-        
-        <div class="view-toggle">
-            <button mat-icon-button 
-                    [color]="viewMode() === 'list' ? 'accent' : 'basic'"
-                    (click)="toggleView('list')"
-                    matTooltip="List View">
-                <mat-icon>view_list</mat-icon>
-            </button>
-            <button mat-icon-button 
-                    [color]="viewMode() === 'grid' ? 'accent' : 'basic'"
-                    (click)="toggleView('grid')"
-                    matTooltip="Grid View">
-                <mat-icon>grid_view</mat-icon>
-            </button>
+        <div class="toolbar-content">
+            <div class="logo-section">
+                <mat-icon class="logo-icon">folder_special</mat-icon>
+                <span class="logo-text">File Explorer</span>
+                <span class="logo-badge">v2.0</span>
+            </div>
+            
+            <div class="toolbar-actions">
+                <div class="view-toggle-group">
+                    <button mat-icon-button 
+                            [class.active]="viewMode() === 'list'"
+                            (click)="toggleView('list')"
+                            matTooltip="List View"
+                            matTooltipPosition="below">
+                        <mat-icon>view_list</mat-icon>
+                    </button>
+                    <button mat-icon-button 
+                            [class.active]="viewMode() === 'grid'"
+                            (click)="toggleView('grid')"
+                            matTooltip="Grid View"
+                            matTooltipPosition="below">
+                        <mat-icon>grid_view</mat-icon>
+                    </button>
+                </div>
+                
+                <span class="divider-vertical"></span>
+                
+                <button mat-stroked-button (click)="goUp()" matTooltip="Go to parent directory">
+                    <mat-icon>arrow_upward</mat-icon>
+                    <span class="btn-label">Up</span>
+                </button>
+                
+                <button mat-raised-button color="accent" (click)="loadDirectory(currentPath())" 
+                        [disabled]="loading()">
+                    <mat-icon>{{ loading() ? 'sync' : 'refresh' }}</mat-icon>
+                    <span class="btn-label">{{ loading() ? 'Loading...' : 'Refresh' }}</span>
+                </button>
+            </div>
         </div>
-        
-        <button mat-stroked-button (click)="goUp()" matTooltip="Go up">
-            <mat-icon>arrow_upward</mat-icon>
-            Up
-        </button>
-        <button mat-raised-button color="accent" (click)="loadDirectory(currentPath())">
-            <mat-icon>refresh</mat-icon>
-            Refresh
-        </button>
     </mat-toolbar>
 
-    <!-- Breadcrumb Navigation -->
-    <div class="breadcrumb-nav">
+    <!-- Elegant Breadcrumb -->
+    <div class="breadcrumb-wrapper">
         <div class="breadcrumb-content">
-            <span class="breadcrumb-label">📍 Location:</span>
+            <div class="breadcrumb-left">
+                <mat-icon class="location-icon">location_on</mat-icon>
+                <span class="breadcrumb-label">Location</span>
+            </div>
             <div class="breadcrumb-items">
                 @for (crumb of breadcrumbs(); track crumb.path; let i = $index) {
                     <span class="breadcrumb-item">
-                        <a href="#" (click)="$event.preventDefault(); navigateToBreadcrumb(crumb.path)">
+                        <a href="#" (click)="$event.preventDefault(); navigateToBreadcrumb(crumb.path)"
+                           [class.active]="$last">
+                            <mat-icon *ngIf="i === 0" class="crumb-icon">home</mat-icon>
                             {{ crumb.name || 'Root' }}
                         </a>
                         @if (!$last) {
-                            <span class="separator">›</span>
+                            <mat-icon class="separator-icon">chevron_right</mat-icon>
                         }
                     </span>
                 }
             </div>
-            <span class="path-display">{{ currentPath() || '/' }}</span>
+            <div class="breadcrumb-right">
+                <mat-icon class="path-icon">folder</mat-icon>
+                <span class="path-display">{{ currentPath() || '/' }}</span>
+                <button mat-icon-button class="copy-path-btn" matTooltip="Copy path" (click)="copyPath()">
+                    <mat-icon>content_copy</mat-icon>
+                </button>
+            </div>
         </div>
     </div>
 
-    <!-- Stats Bar -->
-    <div class="stats-bar">
-        <div class="stat-item">
-            <mat-icon>description</mat-icon>
-            <span class="stat-value">{{ fileCount() }}</span>
-            <span class="stat-label">Files</span>
-        </div>
-        <div class="stat-item">
-            <mat-icon>folder</mat-icon>
-            <span class="stat-value">{{ folderCount() }}</span>
-            <span class="stat-label">Folders</span>
-        </div>
-        <div class="stat-item">
-            <mat-icon>storage</mat-icon>
-            <span class="stat-value">{{ formatFileSize(totalSize()) }}</span>
-            <span class="stat-label">Total Size</span>
-        </div>
-        <div class="stat-item stat-search">
-            <mat-form-field appearance="outline" class="search-field">
-                <mat-label>Search files...</mat-label>
-                <input matInput 
-                       [value]="searchTerm()"
-                       (input)="searchTerm.set($any($event.target).value); filterFiles()"
-                       placeholder="🔍 Search files...">
-                <mat-icon matSuffix>search</mat-icon>
-            </mat-form-field>
+    <!-- Premium Stats Dashboard -->
+    <div class="stats-dashboard">
+        <div class="stats-grid">
+            <div class="stat-card stat-card-files">
+                <div class="stat-icon-wrapper">
+                    <mat-icon class="stat-icon">description</mat-icon>
+                </div>
+                <div class="stat-info">
+                    <span class="stat-value">{{ fileCount() }}</span>
+                    <span class="stat-label">Files</span>
+                </div>
+                <div class="stat-trend">
+                    <mat-icon class="trend-icon">trending_up</mat-icon>
+                </div>
+            </div>
+            
+            <div class="stat-card stat-card-folders">
+                <div class="stat-icon-wrapper">
+                    <mat-icon class="stat-icon">folder</mat-icon>
+                </div>
+                <div class="stat-info">
+                    <span class="stat-value">{{ folderCount() }}</span>
+                    <span class="stat-label">Folders</span>
+                </div>
+                <div class="stat-trend">
+                    <mat-icon class="trend-icon">folder_open</mat-icon>
+                </div>
+            </div>
+            
+            <div class="stat-card stat-card-size">
+                <div class="stat-icon-wrapper">
+                    <mat-icon class="stat-icon">storage</mat-icon>
+                </div>
+                <div class="stat-info">
+                    <span class="stat-value">{{ formatFileSize(totalSize()) }}</span>
+                    <span class="stat-label">Total Size</span>
+                </div>
+                <div class="stat-trend">
+                    <mat-icon class="trend-icon">data_usage</mat-icon>
+                </div>
+            </div>
+            
+            <div class="stat-card stat-card-search">
+                <mat-form-field appearance="outline" class="search-field" subscriptSizing="dynamic">
+                    <mat-label>Search files...</mat-label>
+                    <input matInput 
+                           [value]="searchTerm()"
+                           (input)="searchTerm.set($any($event.target).value); filterFiles()"
+                           placeholder="Type to filter...">
+                    <mat-icon matPrefix>search</mat-icon>
+                    @if (searchTerm()) {
+                        <button matSuffix mat-icon-button (click)="searchTerm.set(''); filterFiles()">
+                            <mat-icon>close</mat-icon>
+                        </button>
+                    }
+                </mat-form-field>
+            </div>
         </div>
     </div>
 
-    <!-- Main Content -->
+    <!-- Main Content with Glassmorphism -->
     <main class="main-content">
         @if (loading()) {
             <div class="loading-state">
-                <mat-spinner diameter="50"></mat-spinner>
-                <p>Loading directory contents...</p>
+                <div class="loading-content">
+                    <mat-spinner diameter="60" color="primary"></mat-spinner>
+                    <div class="loading-text">
+                        <h3>Loading Directory</h3>
+                        <p>Please wait while we fetch your files...</p>
+                    </div>
+                </div>
             </div>
         } @else if (error()) {
             <div class="error-state">
-                <mat-icon class="error-icon">warning</mat-icon>
-                <h3>Error loading directory</h3>
-                <p>{{ error() }}</p>
-                <button mat-raised-button color="primary" (click)="loadDirectory(currentPath())">
-                    Retry
-                </button>
+                <div class="error-content">
+                    <div class="error-icon-wrapper">
+                        <mat-icon class="error-icon">error_outline</mat-icon>
+                    </div>
+                    <h3>Oops! Something went wrong</h3>
+                    <p>{{ error() }}</p>
+                    <button mat-raised-button color="primary" (click)="loadDirectory(currentPath())" class="retry-btn">
+                        <mat-icon>refresh</mat-icon>
+                        Try Again
+                    </button>
+                </div>
             </div>
         } @else if (filteredFiles().length === 0 && files().length === 0) {
             <div class="empty-state">
-                <div class="empty-state-content">
-                    <mat-icon class="empty-icon">folder_open</mat-icon>
-                    <h2>No files or folders</h2>
-                    <p>This folder is empty</p>
+                <div class="empty-content">
+                    <div class="empty-icon-wrapper">
+                        <mat-icon class="empty-icon">folder_open</mat-icon>
+                    </div>
+                    <h2>Empty Directory</h2>
+                    <p>This folder doesn't contain any files or subfolders</p>
                 </div>
             </div>
         } @else if (filteredFiles().length === 0) {
             <div class="empty-state">
-                <div class="empty-state-content">
-                    <mat-icon class="empty-icon">search_off</mat-icon>
-                    <h2>No results found</h2>
-                    <p>Try adjusting your search</p>
+                <div class="empty-content">
+                    <div class="empty-icon-wrapper">
+                        <mat-icon class="empty-icon">search_off</mat-icon>
+                    </div>
+                    <h2>No Results Found</h2>
+                    <p>Try adjusting your search terms</p>
                 </div>
             </div>
         } @else {
-            <!-- List View -->
+            <!-- Premium List View -->
             @if (viewMode() === 'list') {
-                <mat-card class="file-list">
-                    <mat-list>
+                <div class="file-list-container">
+                    <div class="file-list-header">
+                        <span class="col-name">
+                            <mat-icon>sort</mat-icon>
+                            Name
+                        </span>
+                        <span class="col-size">Size</span>
+                        <span class="col-modified">Modified</span>
+                        <span class="col-permissions">Permissions</span>
+                    </div>
+                    <mat-list class="file-list">
                         @for (file of filteredFiles(); track file.path) {
                             <mat-list-item 
                                 class="file-list-item"
                                 [class.directory]="file.isDirectory"
-                                (click)="openPreview(file)">
+                                (click)="openPreview(file)"
+                                [matTooltip]="file.isDirectory ? 'Click to open folder' : 'Click to preview'"
+                                matTooltipPosition="right">
                                 <div class="file-item-content">
                                     <div class="file-item-left">
-                                        <mat-icon class="file-icon" [style.color]="getFileColor(file)">
-                                            {{ file.isDirectory ? 'folder' : getFileIcon(file) }}
-                                        </mat-icon>
+                                        <div class="file-icon-wrapper" [style.background]="getFileColor(file) + '20'">
+                                            <mat-icon class="file-icon" [style.color]="getFileColor(file)">
+                                                {{ file.isDirectory ? 'folder' : getFileIcon(file) }}
+                                            </mat-icon>
+                                        </div>
                                         <span class="file-name">{{ file.name }}</span>
                                         @if (file.isDirectory && file.childCount !== null) {
-                                            <mat-chip>{{ file.childCount }} items</mat-chip>
+                                            <mat-chip class="child-chip" size="small">
+                                                {{ file.childCount }} items
+                                            </mat-chip>
+                                        }
+                                        @if (file.isDirectory) {
+                                            <mat-icon class="open-indicator">chevron_right</mat-icon>
                                         }
                                     </div>
                                     <div class="file-item-right">
                                         <span class="file-size">{{ file.isDirectory ? '—' : formatFileSize(file.size) }}</span>
-                                        <span class="file-modified">{{ file.modifiedAt | date:'short' }}</span>
-                                        <span class="file-permissions">{{ file.permissions }}</span>
+                                        <span class="file-modified">{{ file.modifiedAt | date:'mediumDate' }}</span>
+                                        <span class="file-permissions">
+                                            <code>{{ file.permissions }}</code>
+                                        </span>
                                     </div>
                                 </div>
-                                <mat-divider></mat-divider>
                             </mat-list-item>
                         }
                     </mat-list>
-                </mat-card>
+                </div>
             } @else {
-                <!-- Grid View -->
+                <!-- Premium Grid View -->
                 <div class="file-grid">
                     @for (file of filteredFiles(); track file.path) {
                         <mat-card class="file-grid-item" 
                                   [class.directory]="file.isDirectory"
-                                  (click)="openPreview(file)">
+                                  (click)="openPreview(file)"
+                                  matRipple>
                             <div class="file-grid-content">
-                                <mat-icon class="file-grid-icon" [style.color]="getFileColor(file)">
-                                    {{ file.isDirectory ? 'folder' : getFileIcon(file) }}
-                                </mat-icon>
-                                <div class="file-grid-name">{{ file.name }}</div>
-                                <div class="file-grid-size">{{ file.isDirectory ? '📁' : formatFileSize(file.size) }}</div>
-                                @if (file.isDirectory && file.childCount !== null) {
-                                    <mat-chip class="file-grid-child-count">{{ file.childCount }} items</mat-chip>
-                                }
+                                <div class="file-grid-icon-wrapper" [style.background]="getFileColor(file) + '15'">
+                                    <mat-icon class="file-grid-icon" [style.color]="getFileColor(file)">
+                                        {{ file.isDirectory ? 'folder' : getFileIcon(file) }}
+                                    </mat-icon>
+                                    @if (file.isDirectory && file.childCount !== null) {
+                                        <span class="grid-badge">{{ file.childCount }}</span>
+                                    }
+                                </div>
+                                <div class="file-grid-name" [matTooltip]="file.name">
+                                    {{ file.name }}
+                                </div>
+                                <div class="file-grid-meta">
+                                    <span class="file-grid-size">{{ file.isDirectory ? '📁 Folder' : formatFileSize(file.size) }}</span>
+                                </div>
                             </div>
                         </mat-card>
                     }
@@ -165,11 +260,24 @@
         }
     </main>
 
-    <!-- Footer -->
+    <!-- Elegant Footer -->
     <footer class="app-footer">
         <div class="footer-content">
-            <span>© 2026 File Explorer App</span>
-            <span>Built with Angular 22 • {{ files().length }} items</span>
+            <div class="footer-left">
+                <mat-icon class="footer-icon">computer</mat-icon>
+                <span>File Explorer • <strong>{{ files().length }}</strong> items</span>
+            </div>
+            <div class="footer-center">
+                <span class="footer-status">
+                    <span class="status-dot"></span>
+                    <span>Connected</span>
+                </span>
+            </div>
+            <div class="footer-right">
+                <span>Built with Angular 22</span>
+                <span class="footer-divider">|</span>
+                <span>© 2026</span>
+            </div>
         </div>
     </footer>
 </div>

@@ -30,13 +30,13 @@ export class HomeComponent implements OnInit {
     protected searchTerm = signal('');
     protected viewMode = signal<'grid' | 'list'>('list');
 
-    protected fileCount = computed(() => 
+    protected fileCount = computed(() =>
         this.files().filter(f => !f.isDirectory).length
     );
-    protected folderCount = computed(() => 
+    protected folderCount = computed(() =>
         this.files().filter(f => f.isDirectory).length
     );
-    protected totalSize = computed(() => 
+    protected totalSize = computed(() =>
         this.files().reduce((sum, f) => sum + (f.isDirectory ? 0 : f.size), 0)
     );
 
@@ -87,7 +87,7 @@ export class HomeComponent implements OnInit {
     navigateToDirectory(entry: FileSystemEntry) {
         if (entry.isDirectory) {
             this.currentPath.set(entry.path);
-            
+
             this.breadcrumbs.update(crumbs => {
                 const newCrumbs = [...crumbs];
                 const existingIndex = newCrumbs.findIndex(c => c.path === entry.path);
@@ -120,12 +120,12 @@ export class HomeComponent implements OnInit {
         if (currentPath) {
             const parentPath = currentPath.split('/').slice(0, -1).join('/');
             this.currentPath.set(parentPath || '');
-            
+
             this.breadcrumbs.update(crumbs => {
                 crumbs.splice(-1);
                 return [...crumbs];
             });
-            
+
             this.loadDirectory(parentPath || '');
         }
     }
@@ -136,9 +136,9 @@ export class HomeComponent implements OnInit {
             this.filteredFiles.set(this.files());
             return;
         }
-        
+
         this.filteredFiles.set(
-            this.files().filter(file => 
+            this.files().filter(file =>
                 file.name.toLowerCase().includes(search)
             )
         );
@@ -150,7 +150,7 @@ export class HomeComponent implements OnInit {
 
     getFileIcon(entry: FileSystemEntry): string {
         if (entry.isDirectory) return 'folder';
-        
+
         const iconMap: Record<string, string> = {
             'js': 'javascript',
             'ts': 'data_usage',
@@ -181,14 +181,14 @@ export class HomeComponent implements OnInit {
             'avi': 'movie',
             'mov': 'movie'
         };
-        
+
         const ext = entry.extension || '';
         return iconMap[ext] || 'insert_drive_file';
     }
 
     getFileColor(entry: FileSystemEntry): string {
         if (entry.isDirectory) return '#6B46C1';
-        
+
         const colorMap: Record<string, string> = {
             'js': '#F7DF1E',
             'ts': '#3178C6',
@@ -212,12 +212,23 @@ export class HomeComponent implements OnInit {
             'avi': '#9F7AEA',
             'mov': '#9F7AEA'
         };
-        
+
         const ext = entry.extension || '';
         return colorMap[ext] || '#718096';
     }
 
     formatFileSize(bytes: number): string {
         return this.fileService.formatFileSize(bytes);
+    }
+
+    // TODO: Create Method - Copy current path to clipboard
+    async copyPath() {
+        try {
+            await navigator.clipboard.writeText(this.currentPath() || '/');
+            // TODO: add a snackbar/toast notification here
+            console.log('Path copied to clipboard');
+        } catch (err) {
+            console.error('Failed to copy path:', err);
+        }
     }
 }
