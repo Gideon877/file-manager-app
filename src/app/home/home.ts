@@ -3,22 +3,25 @@ import { CommonModule } from '@angular/common';
 import { FileService } from '../services/file.service';
 import { FileSystemEntry } from '../models/file-system-entry.model';
 import { FilePreviewComponent } from '../file-preview/file-preview';
+import { MaterialModule } from '../material.module';
 import { catchError, of } from 'rxjs';
 
 @Component({
     selector: 'app-home',
     standalone: true,
-    imports: [CommonModule, FilePreviewComponent],
+    imports: [
+        CommonModule,
+        FilePreviewComponent,
+        MaterialModule
+    ],
     templateUrl: './home.html',
     styleUrl: './home.css'
 })
 export class HomeComponent implements OnInit {
     private fileService = inject(FileService);
 
-    // View child reference to the preview modal
     protected previewModal = viewChild(FilePreviewComponent);
 
-    // Signals for reactive state
     protected currentPath = signal<string>('');
     protected files = signal<FileSystemEntry[]>([]);
     protected filteredFiles = signal<FileSystemEntry[]>([]);
@@ -27,7 +30,6 @@ export class HomeComponent implements OnInit {
     protected searchTerm = signal('');
     protected viewMode = signal<'grid' | 'list'>('list');
 
-    // Computed stats
     protected fileCount = computed(() => 
         this.files().filter(f => !f.isDirectory).length
     );
@@ -38,7 +40,6 @@ export class HomeComponent implements OnInit {
         this.files().reduce((sum, f) => sum + (f.isDirectory ? 0 : f.size), 0)
     );
 
-    // Breadcrumbs
     protected breadcrumbs = signal<{ name: string; path: string }[]>([
         { name: 'Root', path: '' }
     ]);
@@ -48,9 +49,6 @@ export class HomeComponent implements OnInit {
         this.loadDirectory('');
     }
 
-    /**
-     * Load directory listing
-     */
     loadDirectory(path: string) {
         this.loading.set(true);
         this.error.set(null);
@@ -78,9 +76,6 @@ export class HomeComponent implements OnInit {
             });
     }
 
-    /**
-     * Open file preview modal or navigate to directory
-     */
     openPreview(file: FileSystemEntry) {
         if (!file.isDirectory) {
             this.previewModal()?.open(file);
@@ -89,9 +84,6 @@ export class HomeComponent implements OnInit {
         }
     }
 
-    /**
-     * Navigate to a directory
-     */
     navigateToDirectory(entry: FileSystemEntry) {
         if (entry.isDirectory) {
             this.currentPath.set(entry.path);
@@ -111,21 +103,18 @@ export class HomeComponent implements OnInit {
         }
     }
 
-    /**
-     * Navigate to a breadcrumb path
-     */
-    navigateToBreadcrumb(path: string, index: number) {
+    navigateToBreadcrumb(path: string) {
         this.breadcrumbs.update(crumbs => {
-            crumbs.splice(index + 1);
+            const index = crumbs.findIndex(c => c.path === path);
+            if (index !== -1) {
+                crumbs.splice(index + 1);
+            }
             return [...crumbs];
         });
         this.currentPath.set(path);
         this.loadDirectory(path);
     }
 
-    /**
-     * Go up one directory level
-     */
     goUp() {
         const currentPath = this.currentPath();
         if (currentPath) {
@@ -141,9 +130,6 @@ export class HomeComponent implements OnInit {
         }
     }
 
-    /**
-     * Filter files based on search term
-     */
     filterFiles() {
         const search = this.searchTerm().toLowerCase().trim();
         if (!search) {
@@ -158,58 +144,48 @@ export class HomeComponent implements OnInit {
         );
     }
 
-    /**
-     * Toggle view mode
-     */
     toggleView(mode: 'grid' | 'list') {
         this.viewMode.set(mode);
     }
 
-    /**
-     * Get icon for file type
-     */
     getFileIcon(entry: FileSystemEntry): string {
-        if (entry.isDirectory) return '📁';
+        if (entry.isDirectory) return 'folder';
         
         const iconMap: Record<string, string> = {
-            'js': '📄',
-            'ts': '📘',
-            'json': '📋',
-            'html': '🌐',
-            'css': '🎨',
-            'md': '📝',
-            'txt': '📃',
-            'jpg': '🖼️',
-            'jpeg': '🖼️',
-            'png': '🖼️',
-            'gif': '🖼️',
-            'svg': '🖼️',
-            'webp': '🖼️',
-            'pdf': '📕',
-            'doc': '📄',
-            'docx': '📄',
-            'xls': '📊',
-            'xlsx': '📊',
-            'zip': '📦',
-            'tar': '📦',
-            'gz': '📦',
-            'lock': '🔒',
-            'mp3': '🎵',
-            'wav': '🎵',
-            'ogg': '🎵',
-            'mp4': '🎬',
-            'webm': '🎬',
-            'avi': '🎬',
-            'mov': '🎬'
+            'js': 'javascript',
+            'ts': 'data_usage',
+            'json': 'data_object',
+            'html': 'html',
+            'css': 'css',
+            'md': 'description',
+            'txt': 'description',
+            'jpg': 'image',
+            'jpeg': 'image',
+            'png': 'image',
+            'gif': 'image',
+            'svg': 'image',
+            'webp': 'image',
+            'pdf': 'picture_as_pdf',
+            'doc': 'description',
+            'docx': 'description',
+            'xls': 'table_chart',
+            'xlsx': 'table_chart',
+            'zip': 'folder_zip',
+            'tar': 'folder_zip',
+            'gz': 'folder_zip',
+            'mp3': 'music_note',
+            'wav': 'music_note',
+            'ogg': 'music_note',
+            'mp4': 'movie',
+            'webm': 'movie',
+            'avi': 'movie',
+            'mov': 'movie'
         };
         
         const ext = entry.extension || '';
-        return iconMap[ext] || '📄';
+        return iconMap[ext] || 'insert_drive_file';
     }
 
-    /**
-     * Get color for file type
-     */
     getFileColor(entry: FileSystemEntry): string {
         if (entry.isDirectory) return '#6B46C1';
         
@@ -228,7 +204,6 @@ export class HomeComponent implements OnInit {
             'svg': '#FF6B6B',
             'webp': '#FF6B6B',
             'pdf': '#E53E3E',
-            'lock': '#2D3748',
             'mp3': '#48BB78',
             'wav': '#48BB78',
             'ogg': '#48BB78',
@@ -242,9 +217,6 @@ export class HomeComponent implements OnInit {
         return colorMap[ext] || '#718096';
     }
 
-    /**
-     * Format file size
-     */
     formatFileSize(bytes: number): string {
         return this.fileService.formatFileSize(bytes);
     }

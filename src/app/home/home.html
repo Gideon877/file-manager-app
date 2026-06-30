@@ -1,43 +1,42 @@
 <div class="home-container">
-    <!-- Header -->
-    <header class="app-header">
-        <div class="header-content">
-            <div class="logo-section">
-                <h1>📁 File Explorer</h1>
-            </div>
-            <div class="header-actions">
-                <div class="view-toggle">
-                    <button 
-                        [class.active]="viewMode() === 'list'"
-                        (click)="toggleView('list')"
-                        title="List View">
-                        📋
-                    </button>
-                    <button 
-                        [class.active]="viewMode() === 'grid'"
-                        (click)="toggleView('grid')"
-                        title="Grid View">
-                        🖼️
-                    </button>
-                </div>
-                <button class="btn btn-secondary" (click)="goUp()" title="Go up">
-                    ⬆ Up
-                </button>
-                <button class="btn btn-primary" (click)="loadDirectory(currentPath())">
-                    🔄 Refresh
-                </button>
-            </div>
+    <!-- Material Toolbar -->
+    <mat-toolbar color="primary" class="app-toolbar">
+        <span class="logo">📁 File Explorer</span>
+        <span class="spacer"></span>
+        
+        <div class="view-toggle">
+            <button mat-icon-button 
+                    [color]="viewMode() === 'list' ? 'accent' : 'basic'"
+                    (click)="toggleView('list')"
+                    matTooltip="List View">
+                <mat-icon>view_list</mat-icon>
+            </button>
+            <button mat-icon-button 
+                    [color]="viewMode() === 'grid' ? 'accent' : 'basic'"
+                    (click)="toggleView('grid')"
+                    matTooltip="Grid View">
+                <mat-icon>grid_view</mat-icon>
+            </button>
         </div>
-    </header>
+        
+        <button mat-stroked-button (click)="goUp()" matTooltip="Go up">
+            <mat-icon>arrow_upward</mat-icon>
+            Up
+        </button>
+        <button mat-raised-button color="accent" (click)="loadDirectory(currentPath())">
+            <mat-icon>refresh</mat-icon>
+            Refresh
+        </button>
+    </mat-toolbar>
 
     <!-- Breadcrumb Navigation -->
-    <nav class="breadcrumb-nav">
+    <div class="breadcrumb-nav">
         <div class="breadcrumb-content">
             <span class="breadcrumb-label">📍 Location:</span>
             <div class="breadcrumb-items">
                 @for (crumb of breadcrumbs(); track crumb.path; let i = $index) {
                     <span class="breadcrumb-item">
-                        <a href="#" (click)="$event.preventDefault(); navigateToBreadcrumb(crumb.path, i)">
+                        <a href="#" (click)="$event.preventDefault(); navigateToBreadcrumb(crumb.path)">
                             {{ crumb.name || 'Root' }}
                         </a>
                         @if (!$last) {
@@ -48,32 +47,34 @@
             </div>
             <span class="path-display">{{ currentPath() || '/' }}</span>
         </div>
-    </nav>
+    </div>
 
     <!-- Stats Bar -->
     <div class="stats-bar">
         <div class="stat-item">
-            <span class="stat-icon">📄</span>
+            <mat-icon>description</mat-icon>
             <span class="stat-value">{{ fileCount() }}</span>
             <span class="stat-label">Files</span>
         </div>
         <div class="stat-item">
-            <span class="stat-icon">📁</span>
+            <mat-icon>folder</mat-icon>
             <span class="stat-value">{{ folderCount() }}</span>
             <span class="stat-label">Folders</span>
         </div>
         <div class="stat-item">
-            <span class="stat-icon">💾</span>
+            <mat-icon>storage</mat-icon>
             <span class="stat-value">{{ formatFileSize(totalSize()) }}</span>
             <span class="stat-label">Total Size</span>
         </div>
         <div class="stat-item stat-search">
-            <input 
-                type="text" 
-                placeholder="🔍 Search files..." 
-                [value]="searchTerm()"
-                (input)="searchTerm.set($any($event.target).value); filterFiles()"
-                class="search-input">
+            <mat-form-field appearance="outline" class="search-field">
+                <mat-label>Search files...</mat-label>
+                <input matInput 
+                       [value]="searchTerm()"
+                       (input)="searchTerm.set($any($event.target).value); filterFiles()"
+                       placeholder="🔍 Search files...">
+                <mat-icon matSuffix>search</mat-icon>
+            </mat-form-field>
         </div>
     </div>
 
@@ -81,22 +82,22 @@
     <main class="main-content">
         @if (loading()) {
             <div class="loading-state">
-                <div class="spinner"></div>
+                <mat-spinner diameter="50"></mat-spinner>
                 <p>Loading directory contents...</p>
             </div>
         } @else if (error()) {
             <div class="error-state">
-                <div class="error-icon">⚠️</div>
+                <mat-icon class="error-icon">warning</mat-icon>
                 <h3>Error loading directory</h3>
                 <p>{{ error() }}</p>
-                <button class="btn btn-primary" (click)="loadDirectory(currentPath())">
+                <button mat-raised-button color="primary" (click)="loadDirectory(currentPath())">
                     Retry
                 </button>
             </div>
         } @else if (filteredFiles().length === 0 && files().length === 0) {
             <div class="empty-state">
                 <div class="empty-state-content">
-                    <div class="empty-icon">📂</div>
+                    <mat-icon class="empty-icon">folder_open</mat-icon>
                     <h2>No files or folders</h2>
                     <p>This folder is empty</p>
                 </div>
@@ -104,7 +105,7 @@
         } @else if (filteredFiles().length === 0) {
             <div class="empty-state">
                 <div class="empty-state-content">
-                    <div class="empty-icon">🔍</div>
+                    <mat-icon class="empty-icon">search_off</mat-icon>
                     <h2>No results found</h2>
                     <p>Try adjusting your search</p>
                 </div>
@@ -112,50 +113,52 @@
         } @else {
             <!-- List View -->
             @if (viewMode() === 'list') {
-                <div class="file-list">
-                    <div class="file-list-header">
-                        <span class="col-name">Name</span>
-                        <span class="col-size">Size</span>
-                        <span class="col-modified">Modified</span>
-                        <span class="col-permissions">Permissions</span>
-                    </div>
-                    @for (file of filteredFiles(); track file.path) {
-                        <div 
-                            class="file-list-item"
-                            [class.directory]="file.isDirectory"
-                            (click)="openPreview(file)">
-                            <span class="col-name">
-                                <span class="file-icon" [style.color]="getFileColor(file)">
-                                    {{ getFileIcon(file) }}
-                                </span>
-                                <span class="file-name">{{ file.name }}</span>
-                                @if (file.isDirectory && file.childCount !== null) {
-                                    <span class="child-count">({{ file.childCount }} items)</span>
-                                }
-                            </span>
-                            <span class="col-size">{{ file.isDirectory ? '—' : formatFileSize(file.size) }}</span>
-                            <span class="col-modified">{{ file.modifiedAt | date:'short' }}</span>
-                            <span class="col-permissions">{{ file.permissions }}</span>
-                        </div>
-                    }
-                </div>
+                <mat-card class="file-list">
+                    <mat-list>
+                        @for (file of filteredFiles(); track file.path) {
+                            <mat-list-item 
+                                class="file-list-item"
+                                [class.directory]="file.isDirectory"
+                                (click)="openPreview(file)">
+                                <div class="file-item-content">
+                                    <div class="file-item-left">
+                                        <mat-icon class="file-icon" [style.color]="getFileColor(file)">
+                                            {{ file.isDirectory ? 'folder' : getFileIcon(file) }}
+                                        </mat-icon>
+                                        <span class="file-name">{{ file.name }}</span>
+                                        @if (file.isDirectory && file.childCount !== null) {
+                                            <mat-chip>{{ file.childCount }} items</mat-chip>
+                                        }
+                                    </div>
+                                    <div class="file-item-right">
+                                        <span class="file-size">{{ file.isDirectory ? '—' : formatFileSize(file.size) }}</span>
+                                        <span class="file-modified">{{ file.modifiedAt | date:'short' }}</span>
+                                        <span class="file-permissions">{{ file.permissions }}</span>
+                                    </div>
+                                </div>
+                                <mat-divider></mat-divider>
+                            </mat-list-item>
+                        }
+                    </mat-list>
+                </mat-card>
             } @else {
                 <!-- Grid View -->
                 <div class="file-grid">
                     @for (file of filteredFiles(); track file.path) {
-                        <div 
-                            class="file-grid-item"
-                            [class.directory]="file.isDirectory"
-                            (click)="openPreview(file)">
-                            <div class="file-grid-icon" [style.color]="getFileColor(file)">
-                                {{ getFileIcon(file) }}
+                        <mat-card class="file-grid-item" 
+                                  [class.directory]="file.isDirectory"
+                                  (click)="openPreview(file)">
+                            <div class="file-grid-content">
+                                <mat-icon class="file-grid-icon" [style.color]="getFileColor(file)">
+                                    {{ file.isDirectory ? 'folder' : getFileIcon(file) }}
+                                </mat-icon>
+                                <div class="file-grid-name">{{ file.name }}</div>
+                                <div class="file-grid-size">{{ file.isDirectory ? '📁' : formatFileSize(file.size) }}</div>
+                                @if (file.isDirectory && file.childCount !== null) {
+                                    <mat-chip class="file-grid-child-count">{{ file.childCount }} items</mat-chip>
+                                }
                             </div>
-                            <div class="file-grid-name">{{ file.name }}</div>
-                            <div class="file-grid-size">{{ file.isDirectory ? '📁' : formatFileSize(file.size) }}</div>
-                            @if (file.isDirectory && file.childCount !== null) {
-                                <div class="file-grid-child-count">{{ file.childCount }} items</div>
-                            }
-                        </div>
+                        </mat-card>
                     }
                 </div>
             }

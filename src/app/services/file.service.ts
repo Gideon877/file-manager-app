@@ -54,7 +54,7 @@ export class FileService {
                     if (!result.data || !result.data.directoryListing) {
                         throw new Error('No data received from server');
                     }
-                    return result.data.directoryListing;
+                    return result.data.directoryListing as FileSystemEntry[];
                 }),
                 catchError((error) => {
                     console.error('Error in getDirectoryListing:', error);
