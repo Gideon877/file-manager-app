@@ -3,10 +3,34 @@ import { CommonModule } from '@angular/common';
 import { DomSanitizer, SafeResourceUrl, SafeUrl } from '@angular/platform-browser';
 import { FileSystemEntry } from '../models/file-system-entry.model';
 
+// Material Imports
+import { MatDialogModule } from '@angular/material/dialog';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatCardModule } from '@angular/material/card';
+import { MatListModule } from '@angular/material/list';
+import { MatChipsModule } from '@angular/material/chips';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatDividerModule } from '@angular/material/divider';
+import { MatToolbarModule } from '@angular/material/toolbar';
+
 @Component({
     selector: 'app-file-preview',
     standalone: true,
-    imports: [CommonModule],
+    imports: [
+        CommonModule,
+        MatDialogModule,
+        MatButtonModule,
+        MatIconModule,
+        MatCardModule,
+        MatListModule,
+        MatChipsModule,
+        MatProgressSpinnerModule,
+        MatTooltipModule,
+        MatDividerModule,
+        MatToolbarModule
+    ],
     templateUrl: './file-preview.html',
     styleUrl: './file-preview.css'
 })
@@ -87,25 +111,24 @@ export class FilePreviewComponent {
         });
     });
 
-    // ===== SAFE URLs =====
+    // ===== SAFE URLs - Using Query Parameters =====
     protected safeFileUrl = computed(() => {
         const file = this.file();
         if (!file) return null;
-        const encodedPath = file.path.split('/')
-            .map(part => encodeURIComponent(part))
-            .join('/');
-        const url = `${this.API_BASE_URL}/file/${encodedPath}`;
-        console.log('🔗 File URL:', url);
+        // Use query parameter format: /file?path=/path/to/file
+        const encodedPath = encodeURIComponent(file.path);
+        const url = `${this.API_BASE_URL}/file?path=${encodedPath}`;
+        console.log('🔗 File URL (query param):', url);
         return this.sanitizer.bypassSecurityTrustResourceUrl(url);
     });
 
     protected safeImageUrl = computed(() => {
         const file = this.file();
         if (!file) return null;
-        // Simple approach: replace spaces with %20
-        const encodedPath = file.path.replace(/ /g, '%20');
-        const url = `${this.API_BASE_URL}/file/${encodedPath}`;
-        console.log('🖼️ Image URL:', url);
+        // Use query parameter format: /file?path=/path/to/file
+        const encodedPath = encodeURIComponent(file.path);
+        const url = `${this.API_BASE_URL}/file?path=${encodedPath}`;
+        console.log('🖼️ Image URL (query param):', url);
         return this.sanitizer.bypassSecurityTrustUrl(url);
     });
 
@@ -118,14 +141,14 @@ export class FilePreviewComponent {
         this.loading.set(true);
         document.body.style.overflow = 'hidden';
 
-        // Fallback: if image doesn't load in 5 seconds, show error
+        // Fallback: if image doesn't load in 10 seconds, show error
         setTimeout(() => {
             if (this.loading()) {
                 console.log('⏰ Image load timeout');
                 this.loading.set(false);
                 this.imageError.set(true);
             }
-        }, 5000);
+        }, 10000);
     }
 
     close() {
@@ -142,13 +165,11 @@ export class FilePreviewComponent {
         console.log('🔄 Retrying image load');
         this.imageError.set(false);
         this.loading.set(true);
-        // Force a reload by updating the file reference
         const currentFile = this.file();
         if (currentFile) {
             this.file.set(null);
             setTimeout(() => {
                 this.file.set(currentFile);
-                // Don't set loading to false here - let the image load event do it
             }, 100);
         }
     }
@@ -209,14 +230,14 @@ export class FilePreviewComponent {
     }
 
     getFileIcon(file: FileSystemEntry): string {
-        if (!file) return '📄';
-        if (file.isDirectory) return '📁';
-        if (this.isImage()) return '🖼️';
-        if (this.isPDF()) return '📕';
-        if (this.isAudio()) return '🎵';
-        if (this.isVideo()) return '🎬';
-        if (this.isText()) return '📄';
-        return '📄';
+        if (!file) return 'insert_drive_file';
+        if (file.isDirectory) return 'folder';
+        if (this.isImage()) return 'image';
+        if (this.isPDF()) return 'picture_as_pdf';
+        if (this.isAudio()) return 'music_note';
+        if (this.isVideo()) return 'movie';
+        if (this.isText()) return 'description';
+        return 'insert_drive_file';
     }
 
     getFileTypeLabel(file: FileSystemEntry): string {

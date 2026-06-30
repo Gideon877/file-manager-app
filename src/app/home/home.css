@@ -793,3 +793,76 @@
         font-size: 2rem;
     }
 }
+
+/* ===== GO TO PATH ===== */
+.goto-path-wrapper {
+    background: white;
+    padding: 0.5rem 2rem;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.goto-path-content {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.goto-icon {
+    color: #4f46e5;
+    font-size: 1.2rem;
+}
+
+.goto-label {
+    color: #64748b;
+    font-size: 0.8rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.goto-input {
+    flex: 1;
+    min-width: 200px;
+    max-width: 600px;
+}
+
+.goto-input .mat-mdc-form-field-flex {
+    background: #f8fafc !important;
+    border-radius: 8px !important;
+}
+
+.goto-input .mat-mdc-form-field-flex:hover {
+    background: #f1f5f9 !important;
+}
+
+.goto-input .mat-mdc-form-field-flex:focus-within {
+    background: white !important;
+}
+
+.paste-btn {
+    color: #94a3b8;
+    transition: all 0.2s;
+}
+
+.paste-btn:hover {
+    color: #4f46e5;
+    background: rgba(79, 70, 229, 0.05);
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+    .goto-path-content {
+        flex-wrap: wrap;
+    }
+    
+    .goto-input {
+        max-width: 100%;
+        min-width: 150px;
+    }
+    
+    .goto-label {
+        display: none;
+    }
+}

@@ -22,6 +22,7 @@ export class HomeComponent implements OnInit {
 
     protected previewModal = viewChild(FilePreviewComponent);
 
+    // ===== STATE =====
     protected currentPath = signal<string>('');
     protected files = signal<FileSystemEntry[]>([]);
     protected filteredFiles = signal<FileSystemEntry[]>([]);
@@ -29,26 +30,31 @@ export class HomeComponent implements OnInit {
     protected error = signal<string | null>(null);
     protected searchTerm = signal('');
     protected viewMode = signal<'grid' | 'list'>('list');
+    protected goToPath = signal<string>('');
 
-    protected fileCount = computed(() =>
+    // ===== COMPUTED =====
+    protected fileCount = computed(() => 
         this.files().filter(f => !f.isDirectory).length
     );
-    protected folderCount = computed(() =>
+    protected folderCount = computed(() => 
         this.files().filter(f => f.isDirectory).length
     );
-    protected totalSize = computed(() =>
+    protected totalSize = computed(() => 
         this.files().reduce((sum, f) => sum + (f.isDirectory ? 0 : f.size), 0)
     );
 
+    // ===== BREADCRUMBS =====
     protected breadcrumbs = signal<{ name: string; path: string }[]>([
         { name: 'Root', path: '' }
     ]);
 
+    // ===== LIFECYCLE =====
     ngOnInit() {
         this.currentPath.set('');
         this.loadDirectory('');
     }
 
+    // ===== DIRECTORY OPERATIONS =====
     loadDirectory(path: string) {
         this.loading.set(true);
         this.error.set(null);
@@ -76,18 +82,33 @@ export class HomeComponent implements OnInit {
             });
     }
 
-    openPreview(file: FileSystemEntry) {
-        if (!file.isDirectory) {
-            this.previewModal()?.open(file);
-        } else {
-            this.navigateToDirectory(file);
+    // ===== NAVIGATION =====
+    navigateToPath() {
+        const path = this.goToPath().trim();
+        if (!path) {
+            console.warn('Please enter a valid path');
+            return;
+        }
+        this.currentPath.set(path);
+        this.loadDirectory(path);
+    }
+
+    async pasteFromClipboard() {
+        try {
+            const text = await navigator.clipboard.readText();
+            if (text) {
+                this.goToPath.set(text);
+                setTimeout(() => this.navigateToPath(), 500);
+            }
+        } catch (err) {
+            console.error('Failed to read from clipboard:', err);
+            this.error.set('Unable to read clipboard. Please manually enter the path.');
         }
     }
 
     navigateToDirectory(entry: FileSystemEntry) {
         if (entry.isDirectory) {
             this.currentPath.set(entry.path);
-
             this.breadcrumbs.update(crumbs => {
                 const newCrumbs = [...crumbs];
                 const existingIndex = newCrumbs.findIndex(c => c.path === entry.path);
@@ -98,7 +119,6 @@ export class HomeComponent implements OnInit {
                 }
                 return newCrumbs;
             });
-
             this.loadDirectory(entry.path);
         }
     }
@@ -120,37 +140,55 @@ export class HomeComponent implements OnInit {
         if (currentPath) {
             const parentPath = currentPath.split('/').slice(0, -1).join('/');
             this.currentPath.set(parentPath || '');
-
             this.breadcrumbs.update(crumbs => {
                 crumbs.splice(-1);
                 return [...crumbs];
             });
-
             this.loadDirectory(parentPath || '');
         }
     }
 
+    async copyPath() {
+        try {
+            await navigator.clipboard.writeText(this.currentPath() || '/');
+            console.log('Path copied to clipboard');
+            // You could add a snackbar/toast here
+        } catch (err) {
+            console.error('Failed to copy path:', err);
+        }
+    }
+
+    // ===== FILTERING =====
     filterFiles() {
         const search = this.searchTerm().toLowerCase().trim();
         if (!search) {
             this.filteredFiles.set(this.files());
             return;
         }
-
         this.filteredFiles.set(
-            this.files().filter(file =>
+            this.files().filter(file => 
                 file.name.toLowerCase().includes(search)
             )
         );
     }
 
+    // ===== VIEW TOGGLE =====
     toggleView(mode: 'grid' | 'list') {
         this.viewMode.set(mode);
     }
 
+    // ===== FILE PREVIEW =====
+    openPreview(file: FileSystemEntry) {
+        if (!file.isDirectory) {
+            this.previewModal()?.open(file);
+        } else {
+            this.navigateToDirectory(file);
+        }
+    }
+
+    // ===== HELPER METHODS =====
     getFileIcon(entry: FileSystemEntry): string {
         if (entry.isDirectory) return 'folder';
-
         const iconMap: Record<string, string> = {
             'js': 'javascript',
             'ts': 'data_usage',
@@ -166,13 +204,6 @@ export class HomeComponent implements OnInit {
             'svg': 'image',
             'webp': 'image',
             'pdf': 'picture_as_pdf',
-            'doc': 'description',
-            'docx': 'description',
-            'xls': 'table_chart',
-            'xlsx': 'table_chart',
-            'zip': 'folder_zip',
-            'tar': 'folder_zip',
-            'gz': 'folder_zip',
             'mp3': 'music_note',
             'wav': 'music_note',
             'ogg': 'music_note',
@@ -181,14 +212,12 @@ export class HomeComponent implements OnInit {
             'avi': 'movie',
             'mov': 'movie'
         };
-
         const ext = entry.extension || '';
         return iconMap[ext] || 'insert_drive_file';
     }
 
     getFileColor(entry: FileSystemEntry): string {
         if (entry.isDirectory) return '#6B46C1';
-
         const colorMap: Record<string, string> = {
             'js': '#F7DF1E',
             'ts': '#3178C6',
@@ -212,23 +241,11 @@ export class HomeComponent implements OnInit {
             'avi': '#9F7AEA',
             'mov': '#9F7AEA'
         };
-
         const ext = entry.extension || '';
         return colorMap[ext] || '#718096';
     }
 
     formatFileSize(bytes: number): string {
         return this.fileService.formatFileSize(bytes);
-    }
-
-    // TODO: Create Method - Copy current path to clipboard
-    async copyPath() {
-        try {
-            await navigator.clipboard.writeText(this.currentPath() || '/');
-            // TODO: add a snackbar/toast notification here
-            console.log('Path copied to clipboard');
-        } catch (err) {
-            console.error('Failed to copy path:', err);
-        }
     }
 }

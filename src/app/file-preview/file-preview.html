@@ -1,23 +1,25 @@
 @if (isOpen()) {
     <div class="modal-overlay" (click)="close()">
-        <div class="modal-container" (click)="$event.stopPropagation()">
+        <mat-card class="modal-container" (click)="$event.stopPropagation()">
             <!-- Modal Header -->
-            <div class="modal-header">
+            <mat-toolbar class="modal-header" color="primary">
                 <div class="modal-title">
-                    <span class="modal-icon">{{ getFileIcon(file()!) }}</span>
+                    <mat-icon class="modal-icon">{{ getFileIcon(file()!) }}</mat-icon>
                     <span>{{ file()?.name || 'File Info' }}</span>
                 </div>
-                <button class="modal-close" (click)="close()">✕</button>
-            </div>
+                <button mat-icon-button class="modal-close" (click)="close()">
+                    <mat-icon>close</mat-icon>
+                </button>
+            </mat-toolbar>
 
             <!-- Modal Body -->
-            <div class="modal-body">
+            <mat-card-content class="modal-body">
                 @if (file(); as file) {
-                    <!-- Preview Content -->
+                    <!-- Preview Container -->
                     <div class="preview-container">
                         @if (file.isDirectory) {
                             <div class="preview-directory">
-                                <div class="preview-icon-large">📁</div>
+                                <mat-icon class="preview-icon-large">folder</mat-icon>
                                 <h3>{{ file.name }}</h3>
                                 <p>Directory with {{ file.childCount || 0 }} items</p>
                             </div>
@@ -25,15 +27,16 @@
                             <div class="preview-image">
                                 @if (loading()) {
                                     <div class="preview-loading">
-                                        <div class="spinner-small"></div>
+                                        <mat-spinner diameter="40"></mat-spinner>
                                         <p>Loading image...</p>
                                     </div>
                                 } @else if (imageError()) {
                                     <div class="preview-error">
-                                        <div class="preview-icon-large">🖼️</div>
+                                        <mat-icon class="preview-icon-large">broken_image</mat-icon>
                                         <p>Failed to load image</p>
                                         <p class="preview-error-path">{{ file.path }}</p>
-                                        <button class="btn-retry" (click)="retryImage()">
+                                        <button mat-raised-button color="primary" (click)="retryImage()">
+                                            <mat-icon>refresh</mat-icon>
                                             Retry
                                         </button>
                                     </div>
@@ -58,7 +61,7 @@
                             </div>
                         } @else if (isAudio()) {
                             <div class="preview-audio">
-                                <div class="audio-icon-large">🎵</div>
+                                <mat-icon class="audio-icon-large">music_note</mat-icon>
                                 <audio controls style="width: 100%;">
                                     <source [src]="safeFileUrl()" [type]="getMimeType(file)">
                                     Your browser does not support the audio element.
@@ -83,76 +86,86 @@
                             </div>
                         } @else {
                             <div class="preview-unknown">
-                                <div class="preview-icon-large">📄</div>
+                                <mat-icon class="preview-icon-large">insert_drive_file</mat-icon>
                                 <p>No preview available for this file type</p>
                             </div>
                         }
                     </div>
 
                     <!-- File Info Section -->
-                    <div class="file-info">
-                        <h4>File Information</h4>
-                        <div class="info-grid">
-                            <div class="info-item">
-                                <span class="info-label">Name</span>
-                                <span class="info-value">{{ file.name }}</span>
-                            </div>
-                            <div class="info-item">
-                                <span class="info-label">Type</span>
-                                <span class="info-value">{{ getFileTypeLabel(file) }}</span>
-                            </div>
-                            <div class="info-item">
-                                <span class="info-label">Size</span>
-                                <span class="info-value">{{ fileSizeFormatted() }}</span>
-                            </div>
-                            <div class="info-item">
-                                <span class="info-label">Extension</span>
-                                <span class="info-value">{{ file.extension || 'None' }}</span>
-                            </div>
-                            <div class="info-item">
-                                <span class="info-label">MIME Type</span>
-                                <span class="info-value">{{ file.mimeType || 'Unknown' }}</span>
-                            </div>
-                            <div class="info-item">
-                                <span class="info-label">Permissions</span>
-                                <span class="info-value permission-value">{{ getPermissionsLabel(file) }}</span>
-                            </div>
-                            <div class="info-item">
-                                <span class="info-label">Created</span>
-                                <span class="info-value">{{ fileCreatedFormatted() }}</span>
-                            </div>
-                            <div class="info-item">
-                                <span class="info-label">Modified</span>
-                                <span class="info-value">{{ fileDateFormatted() }}</span>
-                            </div>
-                            @if (file.accessedAt) {
+                    <mat-card class="file-info">
+                        <mat-card-header>
+                            <mat-icon mat-card-avatar>info</mat-icon>
+                            <mat-card-title>File Information</mat-card-title>
+                        </mat-card-header>
+                        <mat-card-content>
+                            <div class="info-grid">
                                 <div class="info-item">
-                                    <span class="info-label">Last Accessed</span>
-                                    <span class="info-value">{{ file.accessedAt | date:'long' }}</span>
+                                    <span class="info-label">Name</span>
+                                    <span class="info-value">{{ file.name }}</span>
                                 </div>
-                            }
-                            <div class="info-item">
-                                <span class="info-label">Path</span>
-                                <span class="info-value path-value">{{ file.path }}</span>
+                                <div class="info-item">
+                                    <span class="info-label">Type</span>
+                                    <span class="info-value">{{ getFileTypeLabel(file) }}</span>
+                                </div>
+                                <div class="info-item">
+                                    <span class="info-label">Size</span>
+                                    <span class="info-value">{{ fileSizeFormatted() }}</span>
+                                </div>
+                                <div class="info-item">
+                                    <span class="info-label">Extension</span>
+                                    <span class="info-value">{{ file.extension || 'None' }}</span>
+                                </div>
+                                <div class="info-item">
+                                    <span class="info-label">MIME Type</span>
+                                    <span class="info-value">{{ file.mimeType || 'Unknown' }}</span>
+                                </div>
+                                <div class="info-item">
+                                    <span class="info-label">Permissions</span>
+                                    <span class="info-value permission-value">{{ getPermissionsLabel(file) }}</span>
+                                </div>
+                                <div class="info-item">
+                                    <span class="info-label">Created</span>
+                                    <span class="info-value">{{ fileCreatedFormatted() }}</span>
+                                </div>
+                                <div class="info-item">
+                                    <span class="info-label">Modified</span>
+                                    <span class="info-value">{{ fileDateFormatted() }}</span>
+                                </div>
+                                @if (file.accessedAt) {
+                                    <div class="info-item">
+                                        <span class="info-label">Last Accessed</span>
+                                        <span class="info-value">{{ file.accessedAt | date:'long' }}</span>
+                                    </div>
+                                }
+                                <div class="info-item full-width">
+                                    <span class="info-label">Path</span>
+                                    <span class="info-value path-value">{{ file.path }}</span>
+                                </div>
+                                <div class="info-item full-width">
+                                    <span class="info-label">Access</span>
+                                    <span class="info-value">
+                                        <mat-chip-set>
+                                            <mat-chip [color]="file.canRead ? 'primary' : 'warn'" [highlighted]="true">
+                                                <mat-icon>visibility</mat-icon>
+                                                Read
+                                            </mat-chip>
+                                            <mat-chip [color]="file.canWrite ? 'primary' : 'warn'" [highlighted]="true">
+                                                <mat-icon>edit</mat-icon>
+                                                Write
+                                            </mat-chip>
+                                            <mat-chip [color]="file.canExecute ? 'primary' : 'warn'" [highlighted]="true">
+                                                <mat-icon>play_arrow</mat-icon>
+                                                Execute
+                                            </mat-chip>
+                                        </mat-chip-set>
+                                    </span>
+                                </div>
                             </div>
-                            <div class="info-item">
-                                <span class="info-label">Access</span>
-                                <span class="info-value">
-                                    @if (file.canRead && file.canWrite && file.canExecute) {
-                                        Read ✓ | Write ✓ | Execute ✓
-                                    } @else if (file.canRead && file.canWrite) {
-                                        Read ✓ | Write ✓ | Execute ✗
-                                    } @else if (file.canRead) {
-                                        Read ✓ | Write ✗ | Execute ✗
-                                    } @else {
-                                        Read ✗ | Write ✗ | Execute ✗
-                                    }
-                                </span>
-                            </div>
-                        </div>
-                    </div>
+                        </mat-card-content>
+                    </mat-card>
                 }
-            </div>
-        </div>
+            </mat-card-content>
+        </mat-card>
     </div>
 }

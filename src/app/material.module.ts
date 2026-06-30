@@ -17,6 +17,7 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatDialogModule } from '@angular/material/dialog';
 
 @NgModule({
     imports: [
@@ -52,7 +53,8 @@ import { MatFormFieldModule } from '@angular/material/form-field';
         MatDividerModule,
         MatMenuModule,
         MatSlideToggleModule,
-        MatFormFieldModule
+        MatFormFieldModule,
+        MatDialogModule
     ]
 })
 export class MaterialModule { }
