@@ -8,7 +8,7 @@
 
 /* ===== TOOLBAR ===== */
 .app-toolbar {
-    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%) !important;
+    background: linear-gradient(135deg, #1a2e2e 0%, #163a3e 50%, #0f4d60 100%) !important;
     padding: 0 2rem !important;
     height: 72px !important;
     position: sticky;
@@ -36,14 +36,14 @@
     font-size: 2rem;
     width: 2rem;
     height: 2rem;
-    color: #667eea;
+    color: #66ead8;
 }
 
 .logo-text {
     font-size: 1.3rem;
     font-weight: 700;
     letter-spacing: -0.5px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #66ead8 0%, #acd5d4 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -55,7 +55,7 @@
     background: rgba(102, 126, 234, 0.3);
     padding: 0.15rem 0.5rem;
     border-radius: 12px;
-    color: #a8b5e0;
+    color: #e0c9a8;
     letter-spacing: 0.5px;
     border: 1px solid rgba(102, 126, 234, 0.2);
 }
@@ -151,7 +151,7 @@
 }
 
 .breadcrumb-item a {
-    color: #475569;
+    color: #486a0e;
     text-decoration: none;
     font-weight: 500;
     font-size: 0.875rem;
@@ -164,12 +164,12 @@
 }
 
 .breadcrumb-item a:hover {
-    color: #4f46e5;
+    color: #34aa41;
     background: rgba(79, 70, 229, 0.08);
 }
 
 .breadcrumb-item a.active {
-    color: #4f46e5;
+    color: #a6278f;
     font-weight: 600;
 }
 
@@ -217,7 +217,7 @@
 }
 
 .copy-path-btn:hover {
-    color: #4f46e5;
+    color: #a6278f;
 }
 
 /* ===== STATS DASHBOARD ===== */
@@ -252,7 +252,7 @@
 
 .stat-card-files .stat-icon-wrapper {
     background: rgba(99, 102, 241, 0.1);
-    color: #4f46e5;
+    color: #a6278f;
 }
 
 .stat-card-folders .stat-icon-wrapper {
@@ -430,7 +430,7 @@
 
 .empty-icon {
     font-size: 3rem;
-    color: #4f46e5;
+    color: #a6278f;
 }
 
 .empty-content h2 {
@@ -452,7 +452,7 @@
 
 .file-list-header {
     display: grid;
-    grid-template-columns: 4fr 1fr 2fr 1fr;
+    grid-template-columns: 4fr 1.2fr 1.8fr 1.2fr;
     padding: 1rem 1.5rem;
     background: #f8fafc;
     border-bottom: 2px solid #e2e8f0;
@@ -461,6 +461,7 @@
     font-size: 0.8rem;
     text-transform: uppercase;
     letter-spacing: 0.5px;
+    align-items: center;
 }
 
 .file-list-header .col-name {
@@ -469,17 +470,20 @@
     gap: 0.5rem;
 }
 
-.file-list-header mat-icon {
-    font-size: 1rem;
-    width: 1rem;
-    height: 1rem;
+.file-list-body {
+    padding: 0;
 }
 
 .file-list-item {
-    border-bottom: 1px solid #f1f5f9 !important;
-    padding: 0 !important;
-    cursor: default;
+    display: grid;
+    grid-template-columns: 4fr 1.2fr 1.8fr 1.2fr;
+    padding: 0.75rem 1.5rem;
+    border-bottom: 1px solid #f1f5f9;
+    cursor: pointer;
     transition: all 0.2s ease;
+    align-items: center;
+    min-height: 56px;
+    gap: 1rem;
 }
 
 .file-list-item:hover {
@@ -490,23 +494,17 @@
     background: #eef2ff;
 }
 
-.file-list-item.directory {
-    cursor: pointer;
-}
-
-.file-item-content {
-    display: grid;
-    grid-template-columns: 4fr 1fr 2fr 1fr;
-    padding: 0.75rem 1.5rem;
-    align-items: center;
-    width: 100%;
-    gap: 1rem;
+.file-list-item>* {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .file-item-left {
     display: flex;
     align-items: center;
     gap: 0.75rem;
+    overflow: hidden;
 }
 
 .file-icon-wrapper {
@@ -516,6 +514,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    flex-shrink: 0;
 }
 
 .file-icon {
@@ -525,33 +524,93 @@
 .file-name {
     font-weight: 500;
     color: #0f172a;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .child-chip {
     background: #f1f5f9 !important;
     color: #64748b !important;
     font-size: 0.65rem !important;
-    padding: 0.1rem 0.4rem !important;
+    padding: 0.1rem 0.6rem !important;
+    min-height: 20px !important;
+    flex-shrink: 0;
+    border-radius: 12px !important;
 }
 
-.open-indicator {
-    color: #94a3b8;
-    font-size: 1.2rem;
-}
-
-.file-item-right {
+.file-size,
+.file-modified,
+.file-permissions {
     display: flex;
     align-items: center;
-    gap: 1rem;
     color: #64748b;
     font-size: 0.875rem;
 }
 
+.file-size {
+    font-weight: 500;
+    color: #0f172a;
+}
+
 .file-permissions code {
     background: #f1f5f9;
-    padding: 0.1rem 0.4rem;
+    padding: 0.15rem 0.5rem;
     border-radius: 4px;
     font-size: 0.75rem;
+    font-family: 'SF Mono', 'Courier New', monospace;
+    color: #475569;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 1024px) {
+
+    .file-list-header,
+    .file-list-item {
+        grid-template-columns: 3fr 1fr 1.5fr 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+
+    .file-list-header,
+    .file-list-item {
+        grid-template-columns: 2fr 1fr;
+        padding: 0.5rem 1rem;
+        gap: 0.5rem;
+    }
+
+    .file-list-header .col-modified,
+    .file-list-header .col-permissions {
+        display: none;
+    }
+
+    .file-modified,
+    .file-permissions {
+        display: none !important;
+    }
+}
+
+@media (max-width: 480px) {
+
+    .file-list-header,
+    .file-list-item {
+        grid-template-columns: 1fr 0.8fr;
+        padding: 0.4rem 0.75rem;
+    }
+
+    .file-name {
+        font-size: 0.8rem;
+    }
+
+    .file-size {
+        font-size: 0.75rem;
+    }
+
+    .child-chip {
+        font-size: 0.5rem !important;
+        padding: 0.05rem 0.4rem !important;
+    }
 }
 
 /* ===== GRID VIEW ===== */
@@ -579,7 +638,7 @@
 }
 
 .file-grid-item.directory:hover {
-    border-color: #4f46e5;
+    border-color: #a6278f;
     background: #f8faff;
 }
 
@@ -612,7 +671,7 @@
     position: absolute;
     top: -4px;
     right: -4px;
-    background: #4f46e5;
+    background: #a6278f;
     color: white;
     font-size: 0.6rem;
     font-weight: 600;
@@ -690,8 +749,15 @@
 }
 
 @keyframes pulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.4; }
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.4;
+    }
 }
 
 .footer-divider {
@@ -700,6 +766,7 @@
 
 /* ===== RESPONSIVE ===== */
 @media (max-width: 1024px) {
+
     .file-list-header,
     .file-item-content {
         grid-template-columns: 3fr 1fr 1.5fr 1fr;
@@ -712,54 +779,54 @@
         gap: 0.5rem;
         padding: 0.5rem 0;
     }
-    
+
     .toolbar-actions {
         flex-wrap: wrap;
         justify-content: center;
         width: 100%;
     }
-    
+
     .breadcrumb-wrapper {
         padding: 0.5rem 1rem;
     }
-    
+
     .breadcrumb-content {
         flex-wrap: wrap;
     }
-    
+
     .breadcrumb-right {
         margin-left: 0;
         width: 100%;
     }
-    
+
     .path-display {
         max-width: 100%;
     }
-    
+
     .stats-grid {
         grid-template-columns: repeat(2, 1fr);
     }
-    
+
     .file-list-header,
     .file-item-content {
         grid-template-columns: 2fr 1fr;
         padding: 0.5rem 0.75rem;
     }
-    
+
     .file-item-right .file-modified,
     .file-item-right .file-permissions {
         display: none;
     }
-    
+
     .file-grid {
         grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
         gap: 0.75rem;
     }
-    
+
     .main-content {
         padding: 1rem;
     }
-    
+
     .footer-content {
         flex-direction: column;
         gap: 0.5rem;
@@ -771,24 +838,24 @@
     .stats-grid {
         grid-template-columns: 1fr;
     }
-    
+
     .logo-text {
         font-size: 1rem;
     }
-    
+
     .logo-badge {
         font-size: 0.5rem;
     }
-    
+
     .file-grid {
         grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
     }
-    
+
     .file-grid-icon-wrapper {
         width: 56px;
         height: 56px;
     }
-    
+
     .file-grid-icon {
         font-size: 2rem;
     }
@@ -810,7 +877,7 @@
 }
 
 .goto-icon {
-    color: #4f46e5;
+    color: #a6278f;
     font-size: 1.2rem;
 }
 
@@ -847,7 +914,7 @@
 }
 
 .paste-btn:hover {
-    color: #4f46e5;
+    color: #a6278f;
     background: rgba(79, 70, 229, 0.05);
 }
 
@@ -856,12 +923,12 @@
     .goto-path-content {
         flex-wrap: wrap;
     }
-    
+
     .goto-input {
         max-width: 100%;
         min-width: 150px;
     }
-    
+
     .goto-label {
         display: none;
     }

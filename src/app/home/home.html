@@ -5,7 +5,7 @@
             <div class="logo-section">
                 <mat-icon class="logo-icon">folder_special</mat-icon>
                 <span class="logo-text">File Explorer</span>
-                <span class="logo-badge">v2.0</span>
+                <span class="logo-badge">v1.0.0</span>
             </div>
 
             <div class="toolbar-actions">
@@ -197,49 +197,49 @@
         @if (viewMode() === 'list') {
         <div class="file-list-container">
             <div class="file-list-header">
-                <span class="col-name">
-                    <mat-icon>sort</mat-icon>
-                    Name
-                </span>
-                <span class="col-size">Size</span>
+                <span class="col-name">Name</span>
+                <span class="col-size">Size / Items</span>
                 <span class="col-modified">Modified</span>
                 <span class="col-permissions">Permissions</span>
             </div>
-            <mat-list class="file-list">
+            <div class="file-list-body">
                 @for (file of filteredFiles(); track file.path) {
-                <mat-list-item class="file-list-item" [class.directory]="file.isDirectory" (click)="openPreview(file)"
+                <div class="file-list-item" [class.directory]="file.isDirectory" (click)="openPreview(file)"
                     [matTooltip]="file.isDirectory ? 'Click to open folder' : 'Click to preview'"
                     matTooltipPosition="right">
-                    <div class="file-item-content">
-                        <div class="file-item-left">
-                            <div class="file-icon-wrapper" [style.background]="getFileColor(file) + '20'">
-                                <mat-icon class="file-icon" [style.color]="getFileColor(file)">
-                                    {{ file.isDirectory ? 'folder' : getFileIcon(file) }}
-                                </mat-icon>
-                            </div>
-                            <span class="file-name">{{ file.name }}</span>
-                            @if (file.isDirectory && file.childCount !== null) {
-                            <mat-chip class="child-chip" size="small">
-                                {{ file.childCount }} items
-                            </mat-chip>
-                            }
-                            @if (file.isDirectory) {
-                            <mat-icon class="open-indicator">chevron_right</mat-icon>
-                            }
+
+                    <!-- Name Column -->
+                    <div class="file-item-left">
+                        <div class="file-icon-wrapper" [style.background]="getFileColor(file) + '20'">
+                            <mat-icon class="file-icon" [style.color]="getFileColor(file)">
+                                {{ file.isDirectory ? 'folder' : getFileIcon(file) }}
+                            </mat-icon>
                         </div>
-                        <div class="file-item-right">
-                            <span class="file-size">{{ file.isDirectory ? '—' : formatFileSize(file.size) }}</span>
-                            <span class="file-modified">{{ file.modifiedAt | date:'mediumDate' }}</span>
-                            <span class="file-permissions">
-                                <code>{{ file.permissions }}</code>
-                            </span>
-                        </div>
+                        <span class="file-name">{{ file.name }}</span>
+                        
                     </div>
-                </mat-list-item>
+
+                    <!-- Size / Items Column -->
+                    <span class="file-size">
+                        @if (file.isDirectory) {
+                        {{ file.childCount !== null ? file.childCount + ' items' : '—' }}
+                        } @else {
+                        {{ formatFileSize(file.size) }}
+                        }
+                    </span>
+
+                    <!-- Modified Column -->
+                    <span class="file-modified">{{ file.modifiedAt | date:'mediumDate' }}</span>
+
+                    <!-- Permissions Column -->
+                    <span class="file-permissions">
+                        <code>{{ file.permissions }}</code>
+                    </span>
+                </div>
                 }
-            </mat-list>
+            </div>
         </div>
-        } @else {
+        }@else {
         <!-- Premium Grid View -->
         <div class="file-grid">
             @for (file of filteredFiles(); track file.path) {
