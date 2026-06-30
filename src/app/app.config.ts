@@ -2,14 +2,14 @@ import { ApplicationConfig, provideZoneChangeDetection } from '@angular/core';
 import { provideRouter } from '@angular/router';
 import { provideHttpClient } from '@angular/common/http';
 import { provideAnimations } from '@angular/platform-browser/animations';
-import { InMemoryCache } from '@apollo/client/core';
+import { ApolloClientOptions, InMemoryCache } from '@apollo/client/core';
 import { APOLLO_OPTIONS, Apollo } from 'apollo-angular';
 import { HttpLink } from 'apollo-angular/http';
 import { routes } from './app.routes';
 
 const APOLLO_URI = 'http://localhost:4006/graphql';
 
-export function createApollo(httpLink: HttpLink) {
+export function createApollo(httpLink: HttpLink): ApolloClientOptions<any> {
     return {
         link: httpLink.create({ uri: APOLLO_URI }),
         cache: new InMemoryCache(),
@@ -24,10 +24,7 @@ export function createApollo(httpLink: HttpLink) {
 
 export const appConfig: ApplicationConfig = {
     providers: [
-        provideZoneChangeDetection({
-            eventCoalescing: true,
-            runCoalescing: true
-        }),
+        provideZoneChangeDetection({ eventCoalescing: true }),
         provideRouter(routes),
         provideHttpClient(),
         provideAnimations(),

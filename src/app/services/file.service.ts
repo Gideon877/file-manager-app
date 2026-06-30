@@ -8,9 +8,13 @@ import { FileSystemEntry, DirectoryListingResponse } from '../models/file-system
     providedIn: 'root'
 })
 export class FileService {
-    constructor(private apollo: Apollo) { }
+    constructor(private apollo: Apollo) {
+        console.log('🔧 FileService initialized');
+    }
 
     getDirectoryListing(path?: string): Observable<FileSystemEntry[]> {
+        console.log('📤 getDirectoryListing called with path:', path);
+
         const query = gql`
             query GetDirectoryListing($path: String) {
                 directoryListing(path: $path) {
@@ -39,6 +43,7 @@ export class FileService {
         `;
 
         const variables = path ? { path } : {};
+        console.log('📤 GraphQL Variables:', variables);
 
         return this.apollo
             .watchQuery<DirectoryListingResponse>({
@@ -48,16 +53,32 @@ export class FileService {
             })
             .valueChanges.pipe(
                 map((result) => {
+                    console.log('📥 GraphQL Response:', result);
+                    
                     if (result.error) {
+                        console.error('❌ GraphQL Error:', result.error);
                         throw new Error(result.error.message);
                     }
+                    
                     if (!result.data || !result.data.directoryListing) {
+                        console.error('❌ No data in response:', result);
                         throw new Error('No data received from server');
                     }
+                    
+                    console.log('✅ Received entries:', result.data.directoryListing.length);
                     return result.data.directoryListing as FileSystemEntry[];
                 }),
                 catchError((error) => {
-                    console.error('Error in getDirectoryListing:', error);
+                    console.error('❌ Error in getDirectoryListing:', error);
+                    
+                    // Log network errors
+                    if (error.networkError) {
+                        console.error('🌐 Network Error:', error.networkError);
+                    }
+                    if (error.graphQLErrors) {
+                        console.error('📊 GraphQL Errors:', error.graphQLErrors);
+                    }
+                    
                     return throwError(() => new Error(error.message || 'Failed to load directory contents'));
                 })
             );
