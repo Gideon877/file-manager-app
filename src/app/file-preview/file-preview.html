@@ -23,17 +23,26 @@
                             </div>
                         } @else if (isImage()) {
                             <div class="preview-image">
-                                @if (imageError()) {
+                                @if (loading()) {
+                                    <div class="preview-loading">
+                                        <div class="spinner-small"></div>
+                                        <p>Loading image...</p>
+                                    </div>
+                                } @else if (imageError()) {
                                     <div class="preview-error">
                                         <div class="preview-icon-large">🖼️</div>
                                         <p>Failed to load image</p>
                                         <p class="preview-error-path">{{ file.path }}</p>
+                                        <button class="btn-retry" (click)="retryImage()">
+                                            Retry
+                                        </button>
                                     </div>
                                 } @else {
                                     <img 
-                                        [src]="getFileUrl(file)" 
+                                        [src]="safeImageUrl()" 
                                         [alt]="file.name"
                                         loading="lazy"
+                                        (load)="onImageLoad()"
                                         (error)="onImageError()"
                                     />
                                 }
@@ -41,7 +50,7 @@
                         } @else if (isPDF()) {
                             <div class="preview-pdf">
                                 <iframe 
-                                    [src]="getFileUrl(file)"
+                                    [src]="safeFileUrl()"
                                     width="100%"
                                     height="500px"
                                     frameborder="0"
@@ -51,21 +60,21 @@
                             <div class="preview-audio">
                                 <div class="audio-icon-large">🎵</div>
                                 <audio controls style="width: 100%;">
-                                    <source [src]="getFileUrl(file)" [type]="getMimeType(file)">
+                                    <source [src]="safeFileUrl()" [type]="getMimeType(file)">
                                     Your browser does not support the audio element.
                                 </audio>
                             </div>
                         } @else if (isVideo()) {
                             <div class="preview-video">
                                 <video controls style="width: 100%; max-height: 400px;">
-                                    <source [src]="getFileUrl(file)" [type]="getMimeType(file)">
+                                    <source [src]="safeFileUrl()" [type]="getMimeType(file)">
                                     Your browser does not support the video element.
                                 </video>
                             </div>
                         } @else if (isText()) {
                             <div class="preview-text">
                                 <iframe 
-                                    [src]="getFileUrl(file)"
+                                    [src]="safeFileUrl()"
                                     width="100%"
                                     height="400px"
                                     frameborder="0"
@@ -126,27 +135,20 @@
                                 <span class="info-label">Path</span>
                                 <span class="info-value path-value">{{ file.path }}</span>
                             </div>
-                            @if (file.canRead && file.canWrite && file.canExecute) {
-                                <div class="info-item">
-                                    <span class="info-label">Access</span>
-                                    <span class="info-value">Read ✓ | Write ✓ | Execute ✓</span>
-                                </div>
-                            } @else if (file.canRead && file.canWrite) {
-                                <div class="info-item">
-                                    <span class="info-label">Access</span>
-                                    <span class="info-value">Read ✓ | Write ✓ | Execute ✗</span>
-                                </div>
-                            } @else if (file.canRead) {
-                                <div class="info-item">
-                                    <span class="info-label">Access</span>
-                                    <span class="info-value">Read ✓ | Write ✗ | Execute ✗</span>
-                                </div>
-                            } else {
-                                <div class="info-item">
-                                    <span class="info-label">Access</span>
-                                    <span class="info-value">Read ✗ | Write ✗ | Execute ✗</span>
-                                </div>
-                            }
+                            <div class="info-item">
+                                <span class="info-label">Access</span>
+                                <span class="info-value">
+                                    @if (file.canRead && file.canWrite && file.canExecute) {
+                                        Read ✓ | Write ✓ | Execute ✓
+                                    } @else if (file.canRead && file.canWrite) {
+                                        Read ✓ | Write ✓ | Execute ✗
+                                    } @else if (file.canRead) {
+                                        Read ✓ | Write ✗ | Execute ✗
+                                    } @else {
+                                        Read ✗ | Write ✗ | Execute ✗
+                                    }
+                                </span>
+                            </div>
                         </div>
                     </div>
                 }
